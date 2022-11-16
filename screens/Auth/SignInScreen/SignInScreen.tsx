@@ -3,7 +3,7 @@ import {
   StyleSheet,
   useWindowDimensions,
   ScrollView,
-  TextInput, View
+  TextInput, View, Alert
 } from "react-native";
 
 import Logo from "./logo.png";
@@ -11,16 +11,27 @@ import CustomButton from "../components/CustomButton";
 import SocialSignInButtons from "../components/SocialSignInButtons";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
+import { useNhostClient } from "@nhost/react";
 
 const SignInScreen = () => {
   const { height } = useWindowDimensions();
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const onSignInPressed = () => {
+const nhost = useNhostClient()
+  const onSignInPressed = async() => {
     // validate user
-    // navigation.navigate('Home');
+const result = await nhost.auth.signIn({
+  email, password
+})
+if(result.error){
+  Alert.alert('Error', result.error.message)
+  setEmail("")
+  setPassword("")
+}
+else {
+
+}
   };
 
   const onForgotPasswordPressed = () => {
@@ -99,7 +110,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
 
     paddingHorizontal: 10,
-    marginVertical: 5,
+    marginVertical: 10,
     height: 50,
   },
 });

@@ -1,19 +1,36 @@
-import { View, Text, StyleSheet, ScrollView, TextInput } from "react-native";
+import { View, StyleSheet, ScrollView, TextInput, Alert } from "react-native";
+import {Text} from '../../../components/Themed'
 import CustomButton from "../components/CustomButton";
 import SocialSignInButtons from "../components/SocialSignInButtons";
 import { useNavigation } from "@react-navigation/core";
 import { useState } from "react";
 import Colors from "../../../constants/Colors";
+import { useNhostClient } from "@nhost/react";
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+const nhost = useNhostClient()
 
-  const onRegisterPressed = () => {
-    console.warn("Sign up");
+  const onRegisterPressed = async() => {
+    const result = await nhost.auth.signUp({
+      email,
+      password,
+      options:{
+        displayName: name
+      }
+    })
+    if(result.error){
+      Alert.alert('Error signing up', result.error.message)
+      setEmail("")
+      setName("")
+      setPassword("")
+    }
+    else {
+      navigation.navigate('Sign in')
+    }
   };
 
   const onSignInPress = () => {
@@ -89,13 +106,15 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   root: {
     alignItems: "center",
-    padding: 20,
+    paddingTop: 30,
+    paddingBottom: 20,
+    paddingLeft: 20,
+    paddingRight: 20
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "black",
-    margin: 10,
+    margin: 20,
   },
   text: {
     color: "gray",
@@ -113,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
 
     paddingHorizontal: 10,
-    marginVertical: 5,
+    marginVertical: 10,
     height: 50,
   },
 });
